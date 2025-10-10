@@ -1,0 +1,20 @@
+# Core LangChain packages
+langchain==0.1.5
+langchain-community==0.0.20
+langchain-core==0.1.23
+
+# Vector store
+chromadb==0.4.22
+
+# Document processing
+pypdf==4.0.1
+beautifulsoup4==4.12.3
+
+# Additional dependencies for text processing
+tiktoken==0.5.2
+
+# Optional: For better text processing
+python-docx==1.1.0
+
+# For development and debugging
+requests==2.31.0
