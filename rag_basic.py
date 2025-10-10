@@ -12,6 +12,7 @@ from langchain_community.llms import Ollama
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Chroma
 
 print("--- RAG Pipeline with Ollama and LangChain ---")
 print("Setting up basic structure...")
@@ -80,7 +81,28 @@ def split_documents(documents):
     print(f"Documents split into {len(splits)} chunks")
     return splits
 
-# TODO: Add vector store
+def create_vector_store(splits, embeddings):
+    """Create ChromaDB vector store from document splits"""
+    if not splits:
+        print("No document splits to process")
+        return None
+        
+    print("Creating ChromaDB vector store...")
+    print("This may take a while for embedding generation...")
+    
+    try:
+        vectorstore = Chroma.from_documents(
+            documents=splits,
+            embedding=embeddings,
+            persist_directory="./chroma_db"
+        )
+        print("Vector store created successfully!")
+        return vectorstore
+    except Exception as e:
+        print(f"Error creating vector store: {e}")
+        return None
+
+# TODO: Add RAG chain
 # TODO: Add text splitting  
 # TODO: Add vector store
 # TODO: Add RAG chain
@@ -94,4 +116,7 @@ if __name__ == "__main__":
         documents = load_documents()
         if documents:
             splits = split_documents(documents)
-            print(f"Pipeline setup complete with {len(splits)} text chunks")
+            if splits:
+                vectorstore = create_vector_store(splits, embeddings)
+                if vectorstore:
+                    print("RAG pipeline setup complete!")
