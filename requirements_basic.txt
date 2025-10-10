@@ -1,0 +1,6 @@
+# Core LangChain packages
+langchain==0.1.5
+langchain-community==0.0.20
+
+# Vector store
+chromadb==0.4.22
