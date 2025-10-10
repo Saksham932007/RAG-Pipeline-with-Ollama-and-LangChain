@@ -13,6 +13,9 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+from langchain.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 
 print("--- RAG Pipeline with Ollama and LangChain ---")
 print("Setting up basic structure...")
@@ -102,7 +105,48 @@ def create_vector_store(splits, embeddings):
         print(f"Error creating vector store: {e}")
         return None
 
-# TODO: Add RAG chain
+def create_rag_chain(vectorstore, llm):
+    """Create RAG chain for question answering"""
+    if not vectorstore:
+        print("No vector store available for RAG chain")
+        return None
+        
+    print("Creating RAG chain...")
+    
+    # Create retriever
+    retriever = vectorstore.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": 3}
+    )
+    
+    # Define prompt template
+    template = """You are an assistant for question-answering tasks.
+Use the following pieces of retrieved context to answer the question.
+If you don't know the answer, just say that you don't know.
+Use three sentences maximum and keep the answer concise.
+
+Question: {question}
+Context: {context}
+
+Answer:"""
+    
+    prompt = PromptTemplate.from_template(template)
+    
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+    
+    # Create RAG chain
+    rag_chain = (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+    
+    print("RAG chain created successfully!")
+    return rag_chain
+
+# TODO: Add chat interface
 # TODO: Add text splitting  
 # TODO: Add vector store
 # TODO: Add RAG chain
@@ -119,4 +163,15 @@ if __name__ == "__main__":
             if splits:
                 vectorstore = create_vector_store(splits, embeddings)
                 if vectorstore:
-                    print("RAG pipeline setup complete!")
+                    rag_chain = create_rag_chain(vectorstore, llm)
+                    if rag_chain:
+                        print("RAG pipeline fully operational!")
+                        
+                        # Simple test
+                        test_question = "What topics are covered in these documents?"
+                        print(f"\nTest question: {test_question}")
+                        try:
+                            answer = rag_chain.invoke(test_question)
+                            print(f"Answer: {answer}")
+                        except Exception as e:
+                            print(f"Error in test query: {e}")
