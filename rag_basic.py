@@ -11,6 +11,7 @@ import sys
 from langchain_community.llms import Ollama
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, DirectoryLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 print("--- RAG Pipeline with Ollama and LangChain ---")
 print("Setting up basic structure...")
@@ -61,7 +62,25 @@ def load_documents(data_dir="./data"):
     print(f"Total documents loaded: {len(documents)}")
     return documents
 
-# TODO: Add text splitting
+def split_documents(documents):
+    """Split documents into smaller chunks for processing"""
+    if not documents:
+        print("No documents to split")
+        return []
+        
+    print("Splitting documents into chunks...")
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+        length_function=len,
+        separators=["\n\n", "\n", " ", ""]
+    )
+    
+    splits = text_splitter.split_documents(documents)
+    print(f"Documents split into {len(splits)} chunks")
+    return splits
+
+# TODO: Add vector store
 # TODO: Add text splitting  
 # TODO: Add vector store
 # TODO: Add RAG chain
@@ -73,4 +92,6 @@ if __name__ == "__main__":
     
     if llm and embeddings:
         documents = load_documents()
-        print(f"Pipeline setup complete with {len(documents)} documents")
+        if documents:
+            splits = split_documents(documents)
+            print(f"Pipeline setup complete with {len(splits)} text chunks")
