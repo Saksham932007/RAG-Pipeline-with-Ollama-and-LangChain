@@ -1,3 +1,10 @@
+## Project Motivation
+
+* This project focuses on AI *systems engineering*, not model research.
+* The goal is to understand how retrieval, vector databases, and
+* local inference are composed into a reliable end-to-end pipeline.
+
+
 # RAG Pipeline with Ollama and LangChain
 
 A complete Retrieval-Augmented Generation (RAG) pipeline that runs entirely locally using Ollama for embeddings and text generation, LangChain for orchestration, and ChromaDB for vector storage.
