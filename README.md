@@ -122,6 +122,12 @@ retriever = vectorstore.as_retriever(
     search_kwargs={"k": 3}  # Number of chunks to retrieve
 )
 ```
+## Limitations
+
+- Uses off-the-shelf embedding and generation models
+- No fine-tuning or model training
+- Single-node setup only
+- No production authentication or access control
 
 ## Troubleshooting
 
